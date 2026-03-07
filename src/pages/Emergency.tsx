@@ -2,19 +2,8 @@
 import React, { useState } from 'react';
 import { C, PageWrap, Card, Btn, Chip, USERS } from '../lib/design';
 
-const Emergency = () => {
-  const [query,setQuery] = useState("");
-  const [found,setFound] = useState(null);
-  const [searched,setSearched] = useState(false);
-
-  const doSearch = () => {
-    const u=Object.values(USERS).find(u=>
-      u.name.toLowerCase().includes(query.toLowerCase())||
-      u.pid.toLowerCase().includes(query.toLowerCase())
-    );
-    setFound(u||null);setSearched(true);
-  };
-  const eu=found||USERS["ananya.sharma"];
+const Emergency = ({ user }) => {
+  const eu = user;
 
   const QRViz = ({sz=155}) => (
     <svg viewBox="0 0 155 155" width={sz} height={sz}
@@ -59,26 +48,6 @@ const Emergency = () => {
       </div>
 
       <PageWrap>
-        <Card style={{padding:22,marginBottom:22}}>
-          <div style={{fontSize:14,fontWeight:700,color:C.primary,marginBottom:14}}>
-            🔍 Emergency Patient Lookup
-          </div>
-          <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-            <input value={query} onChange={e=>setQuery(e.target.value)}
-              onKeyDown={e=>e.key==="Enter"&&doSearch()}
-              placeholder="Name, ABHA ID or Patient ID…"
-              style={{flex:1,padding:"10px 14px",border:`1.5px solid ${C.border}`,
-                borderRadius:8,fontSize:13,background:C.surface,color:C.text,
-                outline:"none",minWidth:240}}/>
-            <Btn label="Search" icon="🔍" onClick={doSearch} variant="danger"/>
-            <Btn label="Scan QR" icon="📷" variant="outline"/>
-          </div>
-          {searched&&!found&&(
-            <div style={{marginTop:10,fontSize:13,color:C.red}}>
-              ⚠️ Not found. Try: "Ananya Sharma" or "P-33017"
-            </div>
-          )}
-        </Card>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:22}}>
           <div>

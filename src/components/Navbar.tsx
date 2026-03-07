@@ -14,7 +14,7 @@ export const Navbar = ({page,setPage}) => {
     {id:"admin",       label:"Admin"},
   ];
   return (
-    <header>
+    <header style={{position:"sticky",top:0,zIndex:99}}>
       {/* ── GOV TOP BAR (dark navy) ── */}
       <div style={{background:C.navy,color:"rgba(255,255,255,.88)",
         padding:"6px 0",borderBottom:"none"}}>
