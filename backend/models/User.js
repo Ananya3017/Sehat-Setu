@@ -20,11 +20,6 @@ const userSchema = mongoose.Schema(
       enum: ['patient', 'admin'],
       default: 'patient',
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    verificationToken: String,
   },
   {
     timestamps: true,
