@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 214 33% 97%; /* #F3F6FA */
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 208 79% 27%; /* #0F4C81 Primary Blue */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 208 79% 27%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 29 100% 60%; /* #FF9933 Saffron Accent */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 6 78% 57%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 208 79% 27%;
+
+    --radius: 0.3rem; /* Less rounded corners for official Govt look */
+
+    --sidebar-background: 208 79% 27%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 208 79% 27%;
+    --sidebar-accent: 208 79% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 208 79% 35%;
+    --sidebar-ring: 0 0% 100%;
+
+    --success: 135 91% 29%; /* #138808 India Green */
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 29 100% 60%; /* Saffron */
+    --warning-foreground: 0 0% 100%;
+    
+    --info: 210 70% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --font-display: 'Poppins', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg;
+  }
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(174, 62%, 32%), hsl(174, 62%, 22%));
+  }
+  .gradient-hero {
+    background: linear-gradient(135deg, hsl(174, 62%, 25%), hsl(200, 50%, 20%));
+  }
+}
