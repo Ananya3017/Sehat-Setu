@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const recordRoutes = require("./routes/record");
 require('dotenv').config();
 
 // Connect to database
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
+app.use("/api/records", recordRoutes);
 
 const PORT = process.env.PORT || 5000;
 
