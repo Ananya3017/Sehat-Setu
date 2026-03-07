@@ -4,9 +4,13 @@ import { C, PageWrap, SecHead, Card, Chip, Btn, AshokaChakra } from '../lib/desi
 
 const Landing = ({setPage}) => {
   return (
-    <div>
+    <div style={{
+      background: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" height=\"100%\" preserveAspectRatio=\"none\"><defs><filter id=\"noise\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/></filter><linearGradient id=\"grad1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"%23ffb366\" stop-opacity=\"0.35\" /><stop offset=\"35%\" stop-color=\"%23ffede0\" stop-opacity=\"0.5\" /><stop offset=\"50%\" stop-color=\"%23ffffff\" stop-opacity=\"0.85\" /><stop offset=\"65%\" stop-color=\"%23e6f5ea\" stop-opacity=\"0.5\" /><stop offset=\"100%\" stop-color=\"%234db86e\" stop-opacity=\"0.35\" /></linearGradient></defs><rect width=\"100%\" height=\"100%\" fill=\"url(%23grad1)\"/><rect width=\"100%\" height=\"100%\" filter=\"url(%23noise)\" opacity=\"0.05\"/></svg>')",
+      backgroundSize: "cover",
+      backgroundAttachment: "fixed"
+    }}>
       {/* ── HERO ── */}
-      <div style={{background:C.surface,padding:"0 0 0 0"}}>
+      <div style={{background:"transparent",padding:"0 0 0 0"}}>
         <div style={{maxWidth:1200,margin:"0 auto",padding:"0 20px",
           display:"grid",gridTemplateColumns:"1fr 1fr",gap:0,
           alignItems:"center",minHeight:480}}>

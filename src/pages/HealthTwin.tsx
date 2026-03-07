@@ -86,8 +86,6 @@ export default function HealthTwinPage() {
       <path d="M36 58 Q28 90 30 130 L35 185 L45 245 L55 245 L60 185 L65 245 L75 245 L85 185 L90 130 Q92 90 84 58 Z" fill="#D8ECFA" stroke="#0F3460" strokeWidth="1.5" className="breathe" />
       <path d="M36 65 Q18 100 20 140 L30 140 Q32 105 44 75 Z" fill="#C8E0F4" stroke="#0F3460" strokeWidth="1.5" />
       <path d="M84 65 Q102 100 100 140 L90 140 Q88 105 76 75 Z" fill="#C8E0F4" stroke="#0F3460" strokeWidth="1.5" />
-      <circle cx="55" cy="100" r="7" fill="#DC2626" opacity="0.85" className="heart-beat" />
-      <text x="55" y="103" textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">♥</text>
       <line x1="40" y1="80" x2="80" y2="80" stroke="#0F3460" strokeWidth="0.4" strokeDasharray="3,3" opacity="0.3" />
       <line x1="38" y1="110" x2="82" y2="110" stroke="#0F3460" strokeWidth="0.4" strokeDasharray="3,3" opacity="0.3" />
       <line x1="36" y1="140" x2="84" y2="140" stroke="#0F3460" strokeWidth="0.4" strokeDasharray="3,3" opacity="0.3" />

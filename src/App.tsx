@@ -29,12 +29,12 @@ export default function App() {
   const render = () => {
     switch(page){
       case "home":        return <Home setPage={setPage}/>;
-      case "vault":       return <HealthVault setPage={setPage}/>;
+      case "vault":       return <HealthVault user={globalUser} setPage={setPage}/>;
       case "health-twin": return <HealthTwin/>;
-      case "score":       return <HealthScore/>;
+      case "score":       return <HealthScore user={globalUser}/>;
       case "hospitals":   return <Hospitals/>;
       case "tele":        return <Telemedicine/>;
-      case "emergency":   return <Emergency/>;
+      case "emergency":   return <Emergency user={globalUser}/>;
       case "admin":       return <Admin/>;
       default:            return <Home setPage={setPage}/>;
     }
