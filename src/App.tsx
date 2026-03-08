@@ -11,7 +11,7 @@ import HealthScore from './pages/HealthScore';
 import Hospitals from './pages/Hospitals';
 import Telemedicine from './pages/Telemedicine';
 import Emergency from './pages/Emergency';
-import Admin from './pages/Admin';
+import { AIAssistant } from './components/AIAssistant';
 
 export default function App() {
   const [globalUser, setGlobalUser] = useState(null);
@@ -20,33 +20,39 @@ export default function App() {
   if (!globalUser) {
     return (
       <>
-        <StyleSheet/>
+        <StyleSheet />
         <GlobalLogin onLogin={setGlobalUser} />
       </>
     );
   }
 
   const render = () => {
-    switch(page){
-      case "home":        return <Home setPage={setPage}/>;
-      case "vault":       return <HealthVault user={globalUser} setPage={setPage}/>;
-      case "health-twin": return <HealthTwin/>;
-      case "score":       return <HealthScore user={globalUser}/>;
-      case "hospitals":   return <Hospitals/>;
-      case "tele":        return <Telemedicine/>;
-      case "emergency":   return <Emergency user={globalUser}/>;
-      case "admin":       return <Admin/>;
-      default:            return <Home setPage={setPage}/>;
+    switch (page) {
+      case "home": return <Home setPage={setPage} />;
+      case "vault": return <HealthVault user={globalUser} setGlobalUser={setGlobalUser} setPage={setPage} />;
+      case "health-twin": return <HealthTwin user={globalUser} />;
+      case "score": return <HealthScore user={globalUser} />;
+      case "hospitals": return <Hospitals />;
+      case "tele": return <Telemedicine />;
+      case "emergency": return <Emergency user={globalUser} setPage={setPage} />;
+      default: return <Home setPage={setPage} />;
     }
+  };
+
+  const handleLogout = () => {
+    setGlobalUser(null);
+    setPage("home");
+    localStorage.removeItem("token");
   };
 
   return (
     <>
-      <StyleSheet/>
-      <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
-        <Navbar page={page} setPage={setPage}/>
-        <div style={{flex:1}}>{render()}</div>
-        <Footer/>
+      <StyleSheet />
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <Navbar page={page} setPage={setPage} user={globalUser} onLogout={handleLogout} />
+        <div style={{ flex: 1 }}>{render()}</div>
+        <AIAssistant />
+        <Footer setPage={setPage} />
       </div>
     </>
   );

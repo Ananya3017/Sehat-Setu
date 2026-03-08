@@ -3,21 +3,10 @@ import React, { useState, useEffect } from "react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { C, PageWrap, SecHead, Card, Btn } from '../lib/design';
 
-const DEFAULT_METRICS = { age: 38, bmi: 26.4, systolic: 128, diastolic: 84, cholesterol: 198, heartRate: 74, activityMins: 25, spo2: 97, stress: 42 };
-
-function calcScore(m) {
-  let s = (m.bmi < 25 ? 30 : m.bmi < 30 ? 22 : 12)
-    + (m.systolic < 120 ? 25 : m.systolic < 130 ? 18 : 10)
-    + (m.cholesterol < 200 ? 20 : m.cholesterol < 240 ? 14 : 7)
-    + (m.heartRate >= 60 && m.heartRate <= 80 ? 15 : 8)
-    + (m.activityMins >= 30 ? 10 : 5);
-  return Math.min(850, Math.round(s * 8.9 + 55));
-}
-
 function getRisks(m) {
   return [
     { label: "Heart Disease Risk", level: m.systolic > 140 || m.cholesterol > 240 ? "High" : m.systolic > 130 ? "Moderate" : "Low" },
-    { label: "Diabetes Risk", level: m.bmi > 30 && m.activityMins < 20 ? "High" : m.bmi > 27 ? "Moderate" : "Low" },
+    { label: "Diabetes Risk", level: m.glucose > 125 || m.bmi > 30 ? "High" : m.glucose >= 100 || m.bmi > 27 ? "Moderate" : "Low" },
     { label: "Obesity Risk", level: m.bmi > 30 ? "High" : m.bmi > 27 ? "Moderate" : "Low" },
     { label: "Hypertension Risk", level: m.systolic > 140 ? "High" : m.systolic > 130 ? "Moderate" : "Low" },
     { label: "Stress-Related Risk", level: m.stress > 70 ? "High" : m.stress > 45 ? "Moderate" : "Low" },
@@ -48,22 +37,48 @@ const RECS = [
   { icon: "🧘", text: "Practice 10 minutes of mindfulness or pranayama daily to manage stress.", priority: "Low" },
 ];
 
-export default function HealthTwinPage() {
-  const [metrics, setMetrics] = useState(DEFAULT_METRICS);
+export default function HealthTwinPage({ user }) {
+  // Use user's real baseline if available
+  const initialSys = user?.bp ? user.bp.split('/')[0] : 120;
+  const initialDia = user?.bp ? user.bp.split('/')[1] : 80;
+
+  const [metrics, setMetrics] = useState({
+    age: 38, bmi: user?.bmi || 25,
+    systolic: parseInt(initialSys),
+    diastolic: parseInt(initialDia),
+    cholesterol: user?.cholesterol || 190,
+    glucose: user?.sugar || 95,
+    heartRate: 74, activityMins: 45, spo2: 97, stress: 32
+  });
+
   const [analyzed, setAnalyzed] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [tick, setTick] = useState(0);
-  
+
+  // Exact CIBIL Sync Formula
+  const calculateCibilScore = (m) => {
+    let bpW = m.systolic <= 120 ? 50 : m.systolic <= 130 ? 20 : -30;
+    let bmiW = (m.bmi >= 18.5 && m.bmi <= 24.9) ? 50 : -30;
+    let cholW = m.cholesterol < 200 ? 40 : m.cholesterol <= 239 ? 10 : -30;
+    let sugarW = m.glucose < 100 ? 40 : m.glucose <= 125 ? -10 : -40;
+    let vaccW = (user?.vaccinations || 0) * 15;
+    let condW = (user?.conditions?.length || 0) * -40;
+    let recsw = (user?.records?.length || 0) * 10;
+
+    let total = 500 + bpW + bmiW + cholW + sugarW + vaccW + condW + recsw;
+    return Math.max(300, Math.min(900, total));
+  };
+
   const risks = getRisks(metrics);
-  const score = calcScore(metrics);
-  const pct = score / 850;
+  const score = calculateCibilScore(metrics);
+  const pct = (score - 300) / 600;
   const rC = { Low: "#138808", Moderate: "#D97706", High: "#DC2626" };
 
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 1500);
     return () => clearInterval(id);
   }, []);
-  
+
   const liveHR = metrics.heartRate + Math.round(Math.sin(tick * 0.7) * 3);
 
   const doAnalyze = () => {
@@ -90,7 +105,7 @@ export default function HealthTwinPage() {
       <line x1="38" y1="110" x2="82" y2="110" stroke="#0F3460" strokeWidth="0.4" strokeDasharray="3,3" opacity="0.3" />
       <line x1="36" y1="140" x2="84" y2="140" stroke="#0F3460" strokeWidth="0.4" strokeDasharray="3,3" opacity="0.3" />
       {[[60, 58, "#E07B00"], [40, 95, "#138808"], [80, 95, "#0F3460"], [42, 155, "#6B46C1"], [78, 155, "#DC2626"]].map(([x, y, c], i) => (
-        <circle key={i} cx={x} cy={y} r="4" fill={c} opacity="0.7" style={{animation:`blinkDot ${1+i*.3}s infinite`}}/>
+        <circle key={i} cx={x} cy={y} r="4" fill={c} opacity="0.7" style={{ animation: `blinkDot ${1 + i * .3}s infinite` }} />
       ))}
     </svg>
   );
@@ -108,11 +123,11 @@ export default function HealthTwinPage() {
   );
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FF993315 0%, #FFFFFF 40%, #FFFFFF 60%, #13880815 100%)", minHeight: "calc(100vh - 110px)" }}>
-      <PageWrap style={{maxWidth:1300}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:24}}>
+    <div style={{ minHeight: "calc(100vh - 110px)" }}>
+      <PageWrap style={{ maxWidth: 1200 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
           <SecHead label="ABDM · Digital Health Twin" title="Digital Health Twin" sub="AI-powered digital representation of your real-time health status and predictive analysis." />
-          <Btn label={analyzing ? "⏳ Syncing Twin..." : "🔬 Re-Analyse Twin"} disabled={analyzing} onClick={doAnalyze} variant="primary" style={{marginBottom:32}} />
+          <Btn label={analyzing ? "⏳ Syncing Twin..." : "🔬 Re-Analyse Twin"} disabled={analyzing} onClick={doAnalyze} variant="primary" style={{ marginBottom: 32 }} />
         </div>
 
         {/* ── SECTION 1: AVATAR + METRICS ── */}
@@ -121,7 +136,7 @@ export default function HealthTwinPage() {
             <span style={{ background: "#EBF2FA", color: "#0F3460", border: "1px solid #C5D9EE", borderRadius: 20, padding: "3px 12px", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>Section 1</span>
             <span style={{ fontSize: 18, fontWeight: 800, color: "#1C2B3A" }}>Digital Human Avatar · Live Health Metrics</span>
           </div>
-          
+
           <div style={{ display: "flex", gap: 24, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <MetricCard icon="❤️" label="Heart Rate" value={liveHR} unit="bpm" sub="Live · ECG Normal" color="#DC2626" ping />
@@ -129,7 +144,7 @@ export default function HealthTwinPage() {
               <MetricCard icon="🫀" label="Stress Level" value={metrics.stress} unit="%" sub={metrics.stress < 45 ? "Low Stress" : "Moderate"} color="#6B46C1" />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, margin:"0 30px" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, margin: "0 30px" }}>
               <div style={{ background: "linear-gradient(180deg, #EBF2FA 0%, #D4E8F8 100%)", borderRadius: 16, padding: "24px 28px", border: "1px solid #C5D9EE", position: "relative" }}>
                 <div style={{ position: "absolute", top: 10, left: 10, width: 8, height: 8, background: "#22c55e", borderRadius: "50%", animation: "pulseRing 2s ease-out infinite" }} />
                 <div style={{ fontSize: 10, fontWeight: 700, color: "#0F3460", textAlign: "center", marginBottom: 8, letterSpacing: 0.5 }}>DIGITAL TWIN · LIVE</div>
@@ -140,8 +155,8 @@ export default function HealthTwinPage() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <MetricCard icon="🫁" label="Oxygen Level" value={metrics.spo2} unit="%" sub="SpO₂ · Normal" color="#0F3460" ping />
-              <MetricCard icon="⚖️" label="BMI" value={metrics.bmi} unit="kg/m²" sub={metrics.bmi < 25 ? "Healthy Weight" : "Overweight"} color="#138808" />
-              <MetricCard icon="🏃" label="Daily Activity" value={metrics.activityMins} unit="min" sub="Steps: ~4,200" color="#D97706" />
+              <MetricCard icon="⚖️" label="BMI" value={metrics.bmi} unit="kg/m²" sub={metrics.bmi < 24.9 ? "Healthy Weight" : "Overweight"} color="#138808" />
+              <MetricCard icon="🩸" label="Blood Sugar" value={metrics.glucose} unit="mg/dl" sub={metrics.glucose < 100 ? "Fasting Normal" : "Elevated"} color="#D97706" />
             </div>
           </div>
 
@@ -151,11 +166,11 @@ export default function HealthTwinPage() {
               {[
                 { k: "heartRate", label: "Heart Rate", unit: "bpm", min: 40, max: 180 },
                 { k: "systolic", label: "Systolic BP", unit: "mmHg", min: 80, max: 200 },
+                { k: "diastolic", label: "Diastolic BP", unit: "mmHg", min: 50, max: 130 },
+                { k: "glucose", label: "Blood Sugar", unit: "mg/dL", min: 70, max: 300 },
                 { k: "bmi", label: "BMI", unit: "kg/m²", min: 14, max: 45, step: 0.1 },
                 { k: "cholesterol", label: "Cholesterol", unit: "mg/dL", min: 100, max: 400 },
-                { k: "spo2", label: "Oxygen (SpO₂)", unit: "%", min: 85, max: 100 },
                 { k: "stress", label: "Stress Level", unit: "%", min: 0, max: 100 },
-                { k: "activityMins", label: "Activity", unit: "min/day", min: 0, max: 120 },
               ].map(f => (
                 <div key={f.k}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 600, color: "#4A6070", marginBottom: 3 }}>
@@ -177,7 +192,7 @@ export default function HealthTwinPage() {
             <span style={{ background: "#EBF2FA", color: "#0F3460", border: "1px solid #C5D9EE", borderRadius: 20, padding: "3px 12px", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>Section 2</span>
             <span style={{ fontSize: 18, fontWeight: 800, color: "#1C2B3A" }}>AI Health Risk Analysis</span>
           </div>
-          
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
             {risks.map((r, i) => (
               <div key={i} style={{ border: `1.5px solid ${rC[r.level]}30`, borderRadius: 10, padding: 16, background: `${rC[r.level]}08`, textAlign: "center" }} className="fade-in">
@@ -192,26 +207,26 @@ export default function HealthTwinPage() {
               </div>
             ))}
           </div>
-          
+
           <div style={{ marginTop: 24, padding: "18px 24px", background: "linear-gradient(135deg,#EBF2FA,#F0F7FF)", borderRadius: 10, border: "1px solid #C5D9EE", display: "flex", alignItems: "center", gap: 24 }}>
             <div style={{ position: "relative", width: 130, height: 130, flexShrink: 0 }}>
               <svg width="130" height="130" style={{ transform: "rotate(-90deg)" }}>
                 <circle cx="65" cy="65" r={r} fill="none" stroke="#E8F0FA" strokeWidth="12" />
-                <circle cx="65" cy="65" r={r} fill="none" stroke={score >= 700 ? "#138808" : score >= 500 ? "#D97706" : "#DC2626"} strokeWidth="12"
+                <circle cx="65" cy="65" r={r} fill="none" stroke={score >= 750 ? "#138808" : score >= 600 ? "#D97706" : "#DC2626"} strokeWidth="12"
                   strokeDasharray={`${pct * circ} ${circ}`} strokeLinecap="round" style={{ transition: "stroke-dasharray 1.2s ease" }} />
               </svg>
               <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
                 <div style={{ fontFamily: "'Noto Serif Display', serif", fontSize: 26, fontWeight: 900, color: "#0F3460", lineHeight: 1 }}>{score}</div>
-                <div style={{ fontSize: 10, color: "#8A9DB0", fontWeight: 700 }}>/ 850</div>
+                <div style={{ fontSize: 10, color: "#8A9DB0", fontWeight: 700 }}>/ 900</div>
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#8A9DB0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>Health Score Integrated Output</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#8A9DB0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>Live CIBIL Diagnostic</div>
               <div style={{ fontFamily: "'Noto Serif Display', serif", fontSize: 24, fontWeight: 900, color: "#0F3460", marginBottom: 6 }}>
-                {score >= 700 ? "Good Health" : score >= 500 ? "Moderate Health" : "Needs Attention"}
+                {score >= 750 ? "Excellent Profile" : score >= 600 ? "Good Status" : "High Patient Risk"}
               </div>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                {[{ r: "750–850", l: "Excellent", c: "#138808" }, { r: "550–749", l: "Moderate", c: "#D97706" }, { r: "300–549", l: "Poor", c: "#DC2626" }].map(b => (
+                {[{ r: "750–900", l: "Excellent", c: "#138808" }, { r: "600–749", l: "Good", c: "#D97706" }, { r: "300–599", l: "Poor", c: "#DC2626" }].map(b => (
                   <span key={b.l} style={{ fontSize: 11, fontWeight: 700, color: b.c, background: b.c + "12", border: `1px solid ${b.c}30`, padding: "3px 12px", borderRadius: 12 }}>{b.r} – {b.l}</span>
                 ))}
               </div>

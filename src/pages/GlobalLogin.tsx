@@ -1,49 +1,59 @@
-// @ts-nocheck
 import React, { useState } from 'react';
+import api from '../services/api';
 
 const GlobalLogin = ({ onLogin }) => {
   const [tab, setTab] = useState("login");
-  const [email, setEmail] = useState(""); 
+  const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [name, setName] = useState(""); 
-  const [rEmail, setREmail] = useState(""); 
+  const [name, setName] = useState("");
+  const [rEmail, setREmail] = useState("");
   const [rPass, setRPass] = useState("");
-  const [err, setErr] = useState(""); 
-  const [msg, setMsg] = useState(""); 
+  const [err, setErr] = useState("");
+  const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const doLogin = () => {
+  const doLogin = async () => {
     setErr("");
-    if (!email||!pass) { setErr("Please enter email and password."); return; }
+    if (!email || !pass) { setErr("Please enter email and password."); return; }
     setLoading(true);
-    setTimeout(() => {
-      if ((email==="citizen@gov.in" && pass==="Sehat@123") || 
-          (email==="jetavya.singh" && pass==="Singh@2004")) {
-        onLogin({
-          _u: email,
-          name: email==="citizen@gov.in" ? "Rajesh Kumar" : "Jetavya Singh",
+
+    try {
+      // First try real auth
+      const res = await api.post('/auth/login', { email, password: pass });
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        // Ensure user has some default properties needed by UI
+        const userData = {
+          ...res.data,
           abha: "91-1234-5678-9012",
-          pid: "P-33017",
           blood: "O+", dob: "14 May 1988", city: "New Delhi", gender: "Male",
-          records: [
-            { id: 1, name: "Complete Blood Count", date: "2025-12-10", type: "Lab Report", size: "1.2 MB", doc: "Dr. Sharma" }
-          ],
-          healthScore: 712,
-          allergies: ["Penicillin", "Peanuts"],
-          conditions: ["Hypertension"],
+          healthScore: 712, allergies: ["Penicillin", "Peanuts"], conditions: ["Hypertension"],
           emergency: { name: "Sunita Kumar", relation: "Spouse", phone: "+91-9876543210" }
-        });
-      } else { 
-        setErr("Invalid credentials."); setLoading(false); 
+        };
+        onLogin(userData);
       }
-    }, 900);
+    } catch (e) {
+      setErr(e.response?.data?.message || "Invalid credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const doRegister = () => {
+  const doRegister = async () => {
     setErr("");
-    if (!name||!rEmail||!rPass) { setErr("Please fill all fields."); return; }
+    if (!name || !rEmail || !rPass) { setErr("Please fill all fields."); return; }
     setLoading(true);
-    setTimeout(() => { setLoading(false); setMsg("Registered. Please login."); setTab("login"); }, 900);
+    try {
+      const res = await api.post('/auth/register', { name, email: rEmail, password: rPass });
+      if (res.data) {
+        setMsg("Registered successfully. Please login.");
+        setTab("login");
+      }
+    } catch (e) {
+      setErr(e.response?.data?.message || "Registration failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,18 +64,16 @@ const GlobalLogin = ({ onLogin }) => {
       alignItems: "center",
       justifyContent: "center",
       fontFamily: "'Noto Sans', sans-serif",
-      background: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" height=\"100%\" preserveAspectRatio=\"none\"><defs><filter id=\"noise\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/></filter><linearGradient id=\"grad1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"%23ffb366\" stop-opacity=\"0.7\" /><stop offset=\"35%\" stop-color=\"%23ffede0\" stop-opacity=\"0.9\" /><stop offset=\"50%\" stop-color=\"%23ffffff\" stop-opacity=\"1\" /><stop offset=\"65%\" stop-color=\"%23e6f5ea\" stop-opacity=\"0.9\" /><stop offset=\"100%\" stop-color=\"%234db86e\" stop-opacity=\"0.8\" /></linearGradient></defs><rect width=\"100%\" height=\"100%\" fill=\"url(%23grad1)\"/><rect width=\"100%\" height=\"100%\" filter=\"url(%23noise)\" opacity=\"0.05\"/></svg>')",
-      backgroundSize: "cover",
       padding: "20px"
     }}>
 
       {/* Header Text */}
       <div style={{ textAlign: "center", marginBottom: "30px", zIndex: 2 }}>
-        <h1 style={{ 
-          color: "#275eaa", 
-          fontSize: "36px", 
-          fontWeight: "800", 
-          margin: "0 0 5px 0" 
+        <h1 style={{
+          color: "#275eaa",
+          fontSize: "36px",
+          fontWeight: "800",
+          margin: "0 0 5px 0"
         }}>
           Sehat Setu
         </h1>
@@ -105,27 +113,27 @@ const GlobalLogin = ({ onLogin }) => {
             {err && <div style={{ color: "#d32f2f", fontSize: "13px", marginBottom: "15px", textAlign: "center" }}>{err}</div>}
             {msg && <div style={{ color: "#388e3c", fontSize: "13px", marginBottom: "15px", textAlign: "center" }}>{msg}</div>}
 
-            <input 
-              type="text" 
-              placeholder="Enter Email" 
-              value={email} onChange={e=>setEmail(e.target.value)}
+            <input
+              type="text"
+              placeholder="Enter Email"
+              value={email} onChange={e => setEmail(e.target.value)}
               style={{
                 width: "100%", padding: "12px 14px", borderRadius: "4px", border: "1px solid #e0e0e0",
                 fontSize: "14px", marginBottom: "16px", outline: "none", color: "#333"
               }}
             />
-            <input 
-              type="password" 
-              placeholder="Enter Password" 
-              value={pass} onChange={e=>setPass(e.target.value)}
-              onKeyDown={e=>e.key==="Enter"&&doLogin()}
+            <input
+              type="password"
+              placeholder="Enter Password"
+              value={pass} onChange={e => setPass(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && doLogin()}
               style={{
                 width: "100%", padding: "12px 14px", borderRadius: "4px", border: "1px solid #e0e0e0",
                 fontSize: "14px", marginBottom: "25px", outline: "none", color: "#333"
               }}
             />
 
-            <button 
+            <button
               onClick={doLogin}
               disabled={loading}
               style={{
@@ -139,7 +147,7 @@ const GlobalLogin = ({ onLogin }) => {
             </button>
 
             <div style={{ textAlign: "center", fontSize: "13px", color: "#666" }}>
-              Don't have an account? <span onClick={() => {setTab("register"); setErr("");}} style={{ color: "#1b5bad", fontWeight: "700", cursor: "pointer", textDecoration: "underline" }}>Register</span>
+              Don't have an account? <span onClick={() => { setTab("register"); setErr(""); }} style={{ color: "#1b5bad", fontWeight: "700", cursor: "pointer", textDecoration: "underline" }}>Register</span>
             </div>
           </>
         ) : (
@@ -157,23 +165,23 @@ const GlobalLogin = ({ onLogin }) => {
 
             {err && <div style={{ color: "#d32f2f", fontSize: "13px", marginBottom: "15px", textAlign: "center" }}>{err}</div>}
 
-            <input 
-              type="text" placeholder="Full Name" 
-              value={name} onChange={e=>setName(e.target.value)}
+            <input
+              type="text" placeholder="Full Name"
+              value={name} onChange={e => setName(e.target.value)}
               style={{ width: "100%", padding: "12px 14px", borderRadius: "4px", border: "1px solid #e0e0e0", fontSize: "14px", marginBottom: "16px", outline: "none" }}
             />
-            <input 
-              type="email" placeholder="Enter Email" 
-              value={rEmail} onChange={e=>setREmail(e.target.value)}
+            <input
+              type="email" placeholder="Enter Email"
+              value={rEmail} onChange={e => setREmail(e.target.value)}
               style={{ width: "100%", padding: "12px 14px", borderRadius: "4px", border: "1px solid #e0e0e0", fontSize: "14px", marginBottom: "16px", outline: "none" }}
             />
-            <input 
-              type="password" placeholder="Create Password" 
-              value={rPass} onChange={e=>setRPass(e.target.value)}
+            <input
+              type="password" placeholder="Create Password"
+              value={rPass} onChange={e => setRPass(e.target.value)}
               style={{ width: "100%", padding: "12px 14px", borderRadius: "4px", border: "1px solid #e0e0e0", fontSize: "14px", marginBottom: "25px", outline: "none" }}
             />
 
-            <button 
+            <button
               onClick={doRegister} disabled={loading}
               style={{ width: "100%", padding: "12px", background: "#1b5bad", color: "#fff", border: "none", borderRadius: "4px", fontSize: "15px", fontWeight: "600", cursor: loading ? "default" : "pointer", marginBottom: "20px" }}
             >
@@ -181,17 +189,11 @@ const GlobalLogin = ({ onLogin }) => {
             </button>
 
             <div style={{ textAlign: "center", fontSize: "13px", color: "#666" }}>
-              Already registered? <span onClick={() => {setTab("login"); setErr("");}} style={{ color: "#1b5bad", fontWeight: "700", cursor: "pointer", textDecoration: "underline" }}>Login</span>
+              Already registered? <span onClick={() => { setTab("login"); setErr(""); }} style={{ color: "#1b5bad", fontWeight: "700", cursor: "pointer", textDecoration: "underline" }}>Login</span>
             </div>
           </>
         )}
       </div>
-      
-      {/* Demo Credentials Helper */}
-      <div style={{ marginTop:"40px", fontSize:"12px", color:"#555", background:"rgba(255,255,255,0.6)", padding:"8px 16px", borderRadius:"20px", zIndex: 2 }}>
-        Demo: jetavya.singh / Singh@2004
-      </div>
-
     </div>
   );
 };
