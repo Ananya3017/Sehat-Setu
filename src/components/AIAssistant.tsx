@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { C, Btn } from '../lib/design';
 
-const API_KEY = "AIzaSyBFhZELOszd1aF41F60noZHQ0-6HOCOprQ";
-
+const API_KEY = process.env.GEMINI_API_KEY;
 export const AIAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
