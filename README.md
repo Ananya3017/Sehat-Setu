@@ -24,6 +24,12 @@
 
 ---
 
+## 📸 Application Preview
+
+Screenshots and demo previews will be added soon.
+
+---
+
 ## 📌 Table of Contents
 
 - [Problem Statement](#-problem-statement)
@@ -38,10 +44,7 @@
 - [Environment Variables](#-environment-variables)
 - [Running the Project](#-running-the-project)
 - [Example API Workflow](#-example-api-workflow)
-- [Screenshots](#-screenshots)
 - [Future Roadmap](#-future-roadmap)
-- [Contributors](#-contributors)
-- [License](#-license)
 - [Impact](#-impact)
 
 ---
@@ -75,6 +78,28 @@ India's healthcare system is deeply fragmented. **1.4 billion people** generate 
 Every citizen gets a **SehatSetu health ID** — one identity, every record, forever.
 
 ---
+--
+
+## ⚡ Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/sehatsetu.git
+
+# Install dependencies
+npm install --prefix backend
+npm install --prefix frontend
+npm install --prefix blockchain
+
+# Configure environment variables
+# Add backend/.env and frontend/.env.local
+
+# Start backend
+npm run dev --prefix backend
+
+# Start frontend
+npm run dev --prefix frontend
+```
 
 ## ✨ Key Features
 
@@ -503,9 +528,37 @@ docker-compose up --build
 # Frontend: http://localhost:5173
 # Backend:  http://localhost:5000
 ```
+## 🛠 Troubleshooting
+
+### MongoDB Connection Issues
+- Verify MongoDB Atlas credentials in `.env`
+- Ensure your IP is whitelisted in MongoDB Atlas Network Access
+
+### MetaMask Not Connecting
+- Switch network to Sepolia testnet
+- Ensure wallet contains Sepolia ETH
+
+### Gemini API Errors
+- Verify `GEMINI_API_KEY` is configured correctly
+- Check API quota limits in Google AI Studio
+
+### Smart Contract Deployment Errors
+- Ensure Alchemy RPC URL is valid
+- Verify wallet private key and Sepolia balance
+---
+## 📡 API Overview
+
+| Module | Endpoint | Description |
+|---|---|---|
+| 🔐 Authentication | `/api/v1/auth` | User registration, login, JWT authentication and role management |
+| 📂 Health Records | `/api/v1/records` | Upload, retrieve and manage encrypted medical records |
+| 🧬 Digital Twin | `/api/v1/twin` | Generate patient risk analysis and digital health twin insights |
+| 🤖 AI Insights | `/api/v1/insights` | AI-powered recommendations, alerts and health summaries |
+| 🔗 Consent Management | `/api/v1/consent` | Blockchain-based consent verification and access control |
+| 💳 Health Score | `/api/v1/score` | Calculate and track Health CIBIL score metrics |
+| ❤️ Vitals Monitoring | `/api/v1/vitals` | Store and analyze patient vitals and health indicators |
 
 ---
-
 ## 🔄 Example API Workflow
 
 ### Register & Login
@@ -638,32 +691,6 @@ Authorization: Bearer <token>
 - [ ] Ethereum Mainnet / Polygon deployment
 - [ ] DISHA compliance (Digital Information Security in Healthcare Act)
 - [ ] Pan-India rollout with Ayushman Bharat scheme integration
-
----
-
-## 👥 Contributors
-
-<table>
-  <tr>
-    <td align="center">
-      <b>Your Name</b><br/>
-      <sub>Full Stack + Blockchain</sub><br/>
-      <a href="https://github.com/yourusername">@yourusername</a>
-    </td>
-    <td align="center">
-      <b>Teammate 2</b><br/>
-      <sub>AI + Backend</sub><br/>
-      <a href="#">@teammate2</a>
-    </td>
-    <td align="center">
-      <b>Teammate 3</b><br/>
-      <sub>Frontend + Design</sub><br/>
-      <a href="#">@teammate3</a>
-    </td>
-  </tr>
-</table>
-
-*Built with ❤️ at [Hackathon Name] 2025*
 
 ---
 
